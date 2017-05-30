@@ -1,0 +1,41 @@
+<!--Mitchell Warr-->
+<!DOCTYPE html>
+<html lang="en" ng-app="bmap" ng-controller="bmapController">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>B Map</title>
+        <link rel="stylesheet" href="main.css"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    </head>
+
+    <body>
+        <h1>Bike Map</h1>
+        <div class="MainCanvas" id="main">
+            <div class = "MainCanvasFrame" id="parentCanvas">
+                <div id="googleMap" style="width:100%;height:500px;"></div>
+            </div>
+            
+            <div class="InputBox" id="inputBox">
+                <div class="row">
+                    <div class="rowLabel" ng-show="loc.mouse.lat != null">{{formatPoint(loc.mouse.lat, loc.mouse.lng)}}</div>
+                </div>
+                <div class="row">
+                    <button class="rowButton" ng-click="selectStart()">Set Start</button>
+                    <div class="rowLabel" ng-show="loc.start.lat != null">{{formatPoint(loc.start.lat, loc.start.lng)}}</div>
+                </div>
+                <div class="row">
+                    <button class="rowButton" ng-click="selectEnd()">Set End</button>
+                    <div class="rowLabel" ng-show="loc.end.lat != null">{{formatPoint(loc.end.lat, loc.end.lng)}}</div>
+                </div>
+                <div class="row">
+                    <button class="rowButton" ng-click="getRoute()">Create Route</button>
+                </div>
+            </div>
+        </div>
+        
+        <script type="text/javascript" src="vec.js"></script>
+        <script type="text/javascript" src="index.js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOLXdMW-62eg4f2-c0wZukO1lRrJItbqM"></script>
+    </body>
+</html>

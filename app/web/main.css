@@ -1,0 +1,106 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    padding: 0;
+    font-family: Calibri;
+    color: #4f4f4f;
+    margin: 20px 60px 0px 60px;
+}
+
+.row {
+    width: 100%;
+    display: flex;
+    padding: 10px;
+}
+
+.rowButton {
+    width: 103px;
+    text-align: center;
+    border: 1px solid #C2C2C2;
+    box-shadow: 0px 1px 3px 1px #dedede;
+    -webkit-box-shadow: 0px 1px 3px 1px #dedede;
+    background-color: transparent;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    padding: 7px;
+    transition: 0.2s ease all; 
+    -moz-transition: 0.2s ease all; 
+    -webkit-transition: 0.2s ease all;
+    margin-right: 10px;
+}
+
+.rowButton:hover {
+    cursor: pointer;
+}
+
+.rowButton:active {
+    border: 1px solid #18bdf2;
+    box-shadow: inset 0px 0px 4px 1px #dedede;
+    -webkit-box-shadow: inset 0px 0px 4px 1px #dedede;
+}
+
+.rowLabel {
+    align-self: center;
+    width: auto;
+    display: inline-block;
+    pointer-events: none;
+    transition: 0.2s ease all; 
+    -moz-transition: 0.2s ease all; 
+    -webkit-transition: 0.2s ease all;
+}
+
+.MainCanvas {
+    min-width: 254px;
+    width: 100%;
+    min-height: 500px;
+    margin: 40px 0px 60px 0px;
+    display: flex;
+    border-radius: 5px;
+    box-shadow: 0px 5px 10px 4px #cccccc;
+    flex-direction: column;
+}
+
+.MainCanvasFrame {
+    width: 100%;
+    min-width: 200px;
+    min-height: 500px;
+    display: block;
+}
+
+.InputBox {
+    margin-left: 0;
+    align-self: center;
+    min-height: 400px;
+    width: 100%;
+    vertical-align: top;
+    display: block;
+    padding: 30px;
+    border-radius: 5px;
+}
+
+.MainCanvasScreen {
+    cursor: pointer;
+    display: block;
+    border-radius: 5px;
+    background-color: #272943;
+}
+
+.resizeable {
+    float: right;
+    min-width: 100px;
+    display: block;
+    vertical-align: bottom;
+}
+
+@media only screen and (max-width: 320px){
+    
+    .InputBox {
+        min-width: 0;
+    }
+    
+    body {
+        margin: 20px 20px 0px 20px;
+    }
+}
