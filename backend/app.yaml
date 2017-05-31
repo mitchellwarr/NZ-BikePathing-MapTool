@@ -1,6 +1,6 @@
 runtime: go
 env: flex
-api_version: go1.7
+api_version: go1.8
 
 handlers:
 - url: /.*
