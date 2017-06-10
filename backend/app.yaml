@@ -1,7 +1,0 @@
-runtime: go
-env: flex
-api_version: go1.8
-
-handlers:
-- url: /.*
-  script: _go_app
