@@ -26,18 +26,44 @@ angular.module('bmap', [])
                     $scope.bikepath.push(new google.maps.Polyline({
                         path: paths[i],
                         geodesic: true,
-                        strokeColor: '#FF0000',
+                        strokeColor: '#ff2121',
                         strokeOpacity: 1.0,
-                        strokeWeight: 2
+                        strokeWeight: 4
                     }));
                     $scope.bikepath[i].setMap($scope.map);
                 }
 
                 console.log(paths);
+                if($scope.heatmap != null) {
+                    $scope.heatmap.setMap(null);
+                }
+                var heatMapData = [];
+                for(var d = 0; d < data.nodes.length; d++) {
+                    heatMapData.push({
+                        location: new google.maps.LatLng(data.nodes[d].lat, data.nodes[d].lng),
+                        weight: data.nodes[d].elevation*data.nodes[d].elevation*data.nodes[d].elevation,
+                        maxIntensity: 80*80*80
+                    });
+                }
+                $scope.heatmap = new google.maps.visualization.HeatmapLayer({
+                    data: heatMapData,
+                    radius: 10
+                });
+                $scope.setHeatMap();
                 $scope.redraw();
             });
         }
     };
+
+    $scope.setHeatMap = function() {
+        if($scope.heatmap != null) {
+            if($scope.showHeatMap) {
+                $scope.heatmap.setMap($scope.map);
+            } else {
+                $scope.heatmap.setMap(null);
+            }
+        }
+    }
 
     $scope.initMap = function() {
         $scope.map = new google.maps.Map(document.getElementById('googleMap'), {
@@ -114,6 +140,80 @@ angular.module('bmap', [])
         $scope.current = 2;
     };
 
+    $scope.getSettings = function() {
+        $http.get('/getSettings')
+            .then(function(response) {
+                data = response.data;
+                $scope.use_wind = data.wind;
+                $scope.use_ele = data.elevation;
+                $scope.wind_deg = data.deg;
+                console.log(data);
+            });
+    };
+
+    $scope.setSettings = function() {
+        var p1, p2;
+        if($scope.use_wind) {
+            p1 = "true";
+        } else {
+            p1 = "false";
+        }
+        if($scope.use_ele) {
+            p2 = "true";
+        } else {
+            p2 = "false";
+        }
+        $http.get('/setSettings/'+p1+'/'+p2+'/'+$scope.wind_deg).then(function(){
+            $scope.getSettings();
+        });
+    };
+
+    $scope.preset = function(type, withSettings) {
+        if(type == 1) {
+            $scope.loc.start.lat = -39.481769;
+            $scope.loc.start.lng = 176.897694;
+            $scope.loc.end.lat = -39.492425;
+            $scope.loc.end.lng = 176.909476;
+            $scope.wind_deg = 360;
+            $scope.redraw();
+            $scope.use_wind = false;
+            $scope.use_ele = withSettings;
+            $scope.setSettings();
+        }
+        if(type == 2) {
+            $scope.loc.start.lat = -39.481769;
+            $scope.loc.start.lng = 176.897694;
+            $scope.loc.end.lat = -39.526779;
+            $scope.loc.end.lng = 176.860347;
+            $scope.wind_deg = 360;
+            $scope.redraw();
+            $scope.use_wind = withSettings;
+            $scope.use_ele = false;
+            $scope.setSettings();
+        }
+        if(type == 3) {
+            $scope.loc.start.lat = -39.481769;
+            $scope.loc.start.lng = 176.897694;
+            $scope.loc.end.lat = -39.622149;
+            $scope.loc.end.lng = 176.782565;
+            $scope.wind_deg = 270;
+            $scope.redraw();
+            $scope.use_wind = withSettings;
+            $scope.use_ele = false;
+            $scope.setSettings();
+        }
+        if(type == 4) {
+            $scope.loc.start.lat = -39.481651;
+            $scope.loc.start.lng = 176.911135;
+            $scope.loc.end.lat = -39.525868;
+            $scope.loc.end.lng = 176.853611;
+            $scope.wind_deg = 0;
+            $scope.redraw();
+            $scope.use_wind = withSettings;
+            $scope.use_ele = false;
+            $scope.setSettings();
+        }
+    }
 
     $scope.map;
     $scope.loc = {
@@ -130,8 +230,16 @@ angular.module('bmap', [])
             lng: null
         }
     };
+    $scope.showHeatMap = true;
+    $scope.$watch('showHeatMap', function(){
+        $scope.setHeatMap();
+    })
+    $scope.use_wind = true;
+    $scope.use_ele = true;
+    $scope.wind_deg = 360;
     $scope.markers = [];
     $scope.bikepath = [];
     $scope.current = -1;
     $scope.initMap();
+    $scope.setSettings();
 });

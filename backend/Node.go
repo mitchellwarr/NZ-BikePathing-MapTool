@@ -3,7 +3,7 @@ package main
 type node struct {
 	Lat       float64 `json:"lat"`
 	Lon       float64 `json:"lng"`
-	elevation float64
+	Elevation float64 `json:"elevation"`
 	parent    *node
 	gcost     float64
 	fcost     float64

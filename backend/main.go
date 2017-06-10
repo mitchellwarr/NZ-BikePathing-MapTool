@@ -28,9 +28,11 @@ const (
 	VELOCITY           = VEL_M / VEL_T
 	PERCENT_SLOW_DOWN  = 0.06
 	USE_TEST_WIND_DATA = true
-	USE_WIND           = false
-	USE_ELEVATION      = true
 )
+
+var USE_WIND bool = false
+var TEST_WIND_DEG float64 = 270
+var USE_ELEVATION bool = true
 
 var db *sql.DB = OpenDatabase()
 
@@ -45,6 +47,7 @@ type Response struct {
 	EndLat   float64  `json:"endLat"`
 	EndLon   float64  `json:"endLon"`
 	Paths    [][]node `json:"paths"`
+	Nodes    []*node  `json:"nodes"`
 }
 
 // error response contains everything we need to use http.Error
@@ -107,15 +110,41 @@ func getRoute(w http.ResponseWriter, r *http.Request) (interface{}, *handlerErro
 	}
 	fmt.Printf("Route to: %f, %f -> %f, %f\n", points.start.Lat, points.start.Lon, points.end.Lat, points.end.Lon)
 
-	start, end, paths := GetRoutePolyLine(points)
+	start, end, paths, nodes := GetRoutePolyLine(points)
 	response := Response{
 		StartLat: start.Lat,
 		StartLon: start.Lon,
 		EndLat:   end.Lat,
 		EndLon:   end.Lon,
 		Paths:    paths,
+		Nodes:    nodes,
 	}
+	fmt.Println(response)
 	return response, nil
+}
+
+func getSettings(w http.ResponseWriter, r *http.Request) (interface{}, *handlerError) {
+	type res struct {
+		Wind      bool    `json:"wind"`
+		Elevation bool    `json:"elevation"`
+		Deg       float64 `json:"deg"`
+	}
+	response := res{
+		Wind:      USE_WIND,
+		Elevation: USE_ELEVATION,
+		Deg:       TEST_WIND_DEG,
+	}
+	fmt.Println(response)
+	return response, nil
+}
+
+func setSettings(w http.ResponseWriter, r *http.Request) (interface{}, *handlerError) {
+	// mux.Vars grabs variables from the path
+	USE_WIND = mux.Vars(r)["wind"] == "true"
+	TEST_WIND_DEG = parseFloat(mux.Vars(r)["deg"])
+	USE_ELEVATION = mux.Vars(r)["elevation"] == "true"
+	type res struct{}
+	return res{}, nil
 }
 
 func main() {
@@ -135,6 +164,8 @@ func main() {
 	router := mux.NewRouter()
 	router.Handle("/", http.RedirectHandler("/my-app/", 302))
 	router.Handle("/getRoute/{startlat}/{startlon}/{endlat}/{endlon}", handler(getRoute)).Methods("GET")
+	router.Handle("/getSettings", handler(getSettings)).Methods("GET")
+	router.Handle("/setSettings/{wind}/{elevation}/{deg}", handler(setSettings)).Methods("GET")
 	router.PathPrefix("/my-app/").Handler(http.StripPrefix("/my-app", fileHandler))
 	http.Handle("/", router)
 

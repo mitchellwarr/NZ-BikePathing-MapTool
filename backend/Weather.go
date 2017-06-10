@@ -91,7 +91,7 @@ func getWeatherInfo() []weatherInfo {
 func getWeatherFromTime(t time.Time, weather []weatherInfo) weatherInfo {
 	if USE_TEST_WIND_DATA {
 		newWind := weather[0]
-		newWind.Wind.Deg = 360
+		newWind.Wind.Deg = TEST_WIND_DEG
 		newWind.Wind.Speed = 6
 		return newWind
 	}

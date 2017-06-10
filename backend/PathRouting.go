@@ -12,13 +12,14 @@ import (
 
 var weather []weatherInfo
 
-func GetRoutePolyLine(points routePoints) (*node, *node, [][]node) {
+func GetRoutePolyLine(points routePoints) (*node, *node, [][]node, []*node) {
 	weather = getWeatherInfo()
 
 	startNodeID := getClosestNode(points.start)
 	endNodeID := getClosestNode(points.end)
 	fmt.Println(startNodeID, " - ", endNodeID)
-	currentNode, err := routePath(startNodeID, endNodeID)
+	currentNode, closedNodes, err := routePath(startNodeID, endNodeID)
+	//current := currentNode
 	paths := getPathsFromParents(currentNode)
 	for _, el := range paths {
 		fmt.Println("---")
@@ -30,8 +31,24 @@ func GetRoutePolyLine(points routePoints) (*node, *node, [][]node) {
 	fmt.Println("\nDistance: ", currentNode.gcost)
 	startNode := getNodeFromID(startNodeID)
 	endNode := getNodeFromID(endNodeID)
-	return startNode, endNode, paths
+	//nodes := getNodesFromParents(current)
+	return startNode, endNode, paths, closedNodes
 	//googleLine := makePolyFromPath(paths)
+}
+
+func getNodesFromParents(n *node) []node {
+	nodes := make([]node, 0)
+	current := n
+	for current.parent != nil {
+		newNode := node{
+			Lat:       current.Lat,
+			Lon:       current.Lon,
+			Elevation: current.Elevation,
+		}
+		nodes = append(nodes, newNode)
+		current = current.parent
+	}
+	return nodes
 }
 
 func getClosestNode(node node) int64 {
@@ -110,7 +127,7 @@ func getNodeFromID(id int64) *node {
 		pointLonLat = strings.Trim(pointLonLat, "POINT()")
 		addCoordsToNode(&newNode, pointLonLat)
 		newNode.id = id
-		newNode.elevation = elevation
+		newNode.Elevation = elevation
 	}
 
 	return &newNode
@@ -149,7 +166,7 @@ func getPathsFromParents(child *node) [][]node {
 
 }
 
-func routePath(startNodeID, endNodeID int64) (*node, error) {
+func routePath(startNodeID, endNodeID int64) (*node, []*node, error) {
 	startNode := getNodeFromID(startNodeID)
 	endNode := getNodeFromID(endNodeID)
 	startNode.calcCost(0, calcHCost(startNode, endNode))
@@ -164,7 +181,7 @@ func routePath(startNodeID, endNodeID int64) (*node, error) {
 	for {
 
 		if openNodes.Len() == 0 {
-			return current, errors.New("Could not find exit")
+			return current, closedNodes, errors.New("Could not find exit")
 		}
 
 		current = heap.Pop(&openNodes).(*node)
@@ -174,7 +191,7 @@ func routePath(startNodeID, endNodeID int64) (*node, error) {
 
 		for _, neighbour := range getNeighbours(current) {
 			if !ContainsNode(closedNodes, neighbour) {
-				newPath := &node{Lat: neighbour.Lat, Lon: neighbour.Lon, id: neighbour.id, elevation: neighbour.elevation}
+				newPath := &node{Lat: neighbour.Lat, Lon: neighbour.Lon, id: neighbour.id, Elevation: neighbour.Elevation}
 				newPath.parent = current
 				generateCosts(newPath, endNode)
 				if (!ContainsNode(openNodes, neighbour)) || newPath.isShorterThan(neighbour) {
@@ -190,7 +207,7 @@ func routePath(startNodeID, endNodeID int64) (*node, error) {
 			break
 		}
 	}
-	return current, nil
+	return current, closedNodes, nil
 }
 
 func getLengthOfNodeArray(nodeList []node) float64 {
@@ -247,7 +264,7 @@ func getCostOfNodeArray(n, n2 *node, nodeList []node) float64 {
 	time := getTimeForDist(n.gcost)
 	var elevation float64
 	if nodeList[0].Lat == n.Lat && nodeList[0].Lon == n.Lon {
-		elevation = n2.elevation - n.elevation
+		elevation = n2.Elevation - n.Elevation
 		for i := 1; i < len(nodeList); i++ {
 			x := (nodeList[i].Lat - nodeList[i-1].Lat) * 110.574
 			y := (nodeList[i].Lon - nodeList[i-1].Lon) * 111.320 * math.Cos(nodeList[i-1].Lat*(math.Pi/180))
@@ -258,7 +275,7 @@ func getCostOfNodeArray(n, n2 *node, nodeList []node) float64 {
 			time = getTimeForDist(n.gcost + length)
 		}
 	} else {
-		elevation = n.elevation - n2.elevation
+		elevation = n.Elevation - n2.Elevation
 		for i := len(nodeList) - 1; i > 0; i-- {
 			x := (nodeList[i-1].Lat - nodeList[i].Lat) * 110.574
 			y := (nodeList[i-1].Lon - nodeList[i].Lon) * 111.320 * math.Cos(nodeList[i-1].Lat*(math.Pi/180))
@@ -295,7 +312,7 @@ func applyTerrainMod(dist, angle float64, weather weatherInfo) float64 {
 func applyElevationMod(dist, elevation float64) float64 {
 	grade := 1.0
 	if USE_ELEVATION {
-		grade = (elevation / (dist * 1000)) + 1
+		grade = ((elevation / (dist * 1000)) * 2) + 1
 	}
 	return dist * grade
 }

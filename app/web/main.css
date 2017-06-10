@@ -9,6 +9,10 @@ body {
     margin: 20px 60px 0px 60px;
 }
 
+.padded {
+    padding: 5px;
+}
+
 .row {
     width: 100%;
     display: flex;
@@ -25,7 +29,7 @@ body {
     border-radius: 3px;
     -webkit-border-radius: 3px;
     padding: 7px;
-    transition: 0.2s ease all; 
+    transition: all .3s;
     -moz-transition: 0.2s ease all; 
     -webkit-transition: 0.2s ease all;
     margin-right: 10px;
@@ -33,12 +37,16 @@ body {
 
 .rowButton:hover {
     cursor: pointer;
+    border-color: #2B85E7;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(1,67,163,.24),0 0 8px rgba(1,67,163,.12),0 4px 18px rgba(43,133,231,.12);
+    transform: translate3d(0,-2px,0);
 }
 
 .rowButton:active {
-    border: 1px solid #18bdf2;
-    box-shadow: inset 0px 0px 4px 1px #dedede;
-    -webkit-box-shadow: inset 0px 0px 4px 1px #dedede;
+    border-color: #2B85E7;
+    box-shadow: inset 0px 0px 8px 3px #dedede;
+    -webkit-box-shadow: inset 0px 0px 8px 3px #dedede;
 }
 
 .rowLabel {
@@ -75,7 +83,8 @@ body {
     min-height: 400px;
     width: 100%;
     vertical-align: top;
-    display: block;
+    display: flex;
+    flex-direction: row;
     padding: 30px;
     border-radius: 5px;
 }
@@ -104,3 +113,16 @@ body {
         margin: 20px 20px 0px 20px;
     }
 }
+
+.col-1 {width: 8.33%;}
+.col-2 {width: 16.66%;}
+.col-3 {width: 25%;}
+.col-4 {width: 33.33%;}
+.col-5 {width: 41.66%;}
+.col-6 {width: 50%;}
+.col-7 {width: 58.33%;}
+.col-8 {width: 66.66%;}
+.col-9 {width: 75%;}
+.col-10 {width: 83.33%;}
+.col-11 {width: 91.66%;}
+.col-12 {width: 100%;}
